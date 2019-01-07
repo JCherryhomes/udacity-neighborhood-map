@@ -1,0 +1,15 @@
+.anchorLeft {
+    width: 340px;
+    top: 64px !important;
+}
+
+.appFrame {
+    height: 30px;
+    line-height: 30px;
+}
+
+@media(max-width: 546px) {
+    .anchorLeft {
+        width: 100%;
+    }
+}
