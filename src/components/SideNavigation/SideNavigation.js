@@ -83,6 +83,7 @@ export class SideNavigation extends Component {
 
             mapPoints.push(temp);
           } catch (e) {
+            alert("There was a problem loading the map data, please try again later");
             console.error('error', e);
           }
         }));
