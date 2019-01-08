@@ -1,110 +1,111 @@
-import React, {
-    Component
-} from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import './map.css';
 
 export class Map extends Component {
-    constructor(props) {
-        super(props);
+  constructor(props) {
+    super(props);
 
-        this.canvas = null;
+    this.canvas = null;
 
-        this.setCanvas = element => {
-            console.log('canvas element', element);
-            this.canvas = element;
-            this.loadMap();
-        };
+    this.setCanvas = element => {
+      this.canvas = element;
+      this.loadMap();
+    };
 
-        this.state = {
-            loading: true,
-            markers: {}
-        };
+    this.state = {
+      loading: true,
+      markers: []
+    };
 
-        this.marker = null;
+    this.addMapPoints.bind(this);
+  }
 
-        this.addMapPoint.bind(this);
-    }
+  loadMap() {
+    if (this.props && this.props.google) {
+      const { google } = this.props;
+      this.maps = google.maps;
 
-    loadMap() {
+      const node = ReactDOM.findDOMNode(this.canvas);
+      const center = new this.maps.LatLng(40.7829, -73.9654);
+      const zoom = 13;
 
-        console.log('MAP POINT', this.props.mapPoint);
-        if (this.props && this.props.google) {
-            const {
-                google
-            } = this.props;
-            this.maps = google.maps;
-
-            const node = ReactDOM.findDOMNode(this.canvas);
-            const center = new this.maps.LatLng(40.7829, -73.9654);
-            const zoom = 13;
-
-            const mapConfig = Object.assign({}, {
-                center: center,
-                zoom: zoom
-            });
-
-            this.map = new this.maps.Map(node, mapConfig);
+      const mapConfig = Object.assign(
+        {},
+        {
+          center: center,
+          zoom: zoom
         }
+      );
+
+      this.map = new this.maps.Map(node, mapConfig);
     }
+  }
 
-    addMapPoint() {
-        if (this.marker) {
-            this.marker.setMap(null);
-            this.marker = null;
-        }
+  addMapPoints() {
+    this.state.markers.forEach(marker => {
+      marker.setMap(null);
+      marker = null;
+    });
 
-        if (this.maps && this.props.mapPoint) {
-            const position = new this.maps.LatLng(
-                this.props.mapPoint.position.lat,
-                this.props.mapPoint.position.long
-            );
+    this.state.markers.length = 0;
 
-            const content = this.props.mapPoint.address;
+    if (this.maps && this.props.mapPoints) {
+      this.props.mapPoints.forEach(mapPoint => {
+        const position = new this.maps.LatLng(
+          mapPoint.position.lat,
+          mapPoint.position.long
+        );
 
-            var infowindow = new this.maps.InfoWindow({
-                content: content,
-                marker: this.marker,
-                position: position
-            });
+        const content = `
+            <h5>${mapPoint.name}</h5>
+            <address>${mapPoint.address}</address>`;
 
-            this.marker = new this.maps.Marker({
-                position: position,
-                title: this.props.mapPoint.name,
-                map: this.map
-            });
-
-            this.marker.addListener('click', function () {
-                infowindow.open(this.map, this.marker);
-            });
-        }
-    }
-
-    componentDidMount() {
-        this.setState({
-            loading: false,
+        var infowindow = new this.maps.InfoWindow({
+          content: content,
+          marker: this.marker,
+          position: position
         });
-    }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (prevProps.google !== this.props.google) {
-            this.loadMap();
+        var marker = new this.maps.Marker({
+          position: position,
+          title: mapPoint.name,
+          map: this.map
+        });
+
+        marker.addListener('click', function() {
+          infowindow.open(this.map, marker);
+        });
+
+        if (this.state.markers.filter(m => m.title === marker.title).length === 0) {
+          this.state.markers.push(marker);
         }
+      });
+    }
+  }
+
+  componentDidMount() {
+    this.setState({
+      loading: false,
+      markers: []
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.google !== this.props.google) {
+      this.loadMap();
+    }
+    this.addMapPoints();
+  }
+
+  render() {
+    if (this.state.loading) {
+      return <CircularProgress />;
     }
 
-    render() {
-        if (this.state.loading) {
-            return (<CircularProgress></CircularProgress>);
-            }
-
-            this.addMapPoint();
-
-            return (
-            <div id="map_canvas"
-                ref = {
-                    this.setCanvas
-                }></div>
-            )
-        }
-    }
+    return (
+      <div id='map_canvas' ref={this.setCanvas} />
+    );
+  }
+}
