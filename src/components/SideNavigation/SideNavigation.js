@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './SideNavigation.css';
-import { Drawer, TextField, Button } from '@material-ui/core';
+import { Drawer, Divider, TextField, List, MenuItem, Button } from '@material-ui/core';
 
 export class SideNavigation extends Component {
 
@@ -94,7 +94,7 @@ export class SideNavigation extends Component {
   }
 
   applyFilter(event) {
-    if (event.target.value && event.target.value !== '') {
+    if (event.target.value) {
       this.setState({
         filterValue: event.target.value,
         filteredListItems: this.listItems.filter(li =>
@@ -140,6 +140,16 @@ export class SideNavigation extends Component {
           onClick={this.loadMapData.bind(this)}>
           Apply Filter
         </Button>
+        <Divider />
+        <h4>MAP POINTS</h4>
+        <Divider />
+        <List>
+          {this.state.filteredListItems.map(listItem => (
+            <MenuItem key={listItem.title}>
+              {listItem.title}
+            </MenuItem>
+          ))}
+        </List>
       </Drawer>
     );
   }
