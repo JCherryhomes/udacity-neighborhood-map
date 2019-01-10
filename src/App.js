@@ -32,8 +32,7 @@ class App extends Component {
 
   filterMapPoints(mapPoints) {
     this.setState({
-      mapPoints: mapPoints,
-      left: false
+      mapPoints: mapPoints
     });
   }
 

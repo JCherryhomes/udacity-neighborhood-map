@@ -71,11 +71,24 @@ export class Map extends Component {
         var marker = new this.maps.Marker({
           position: position,
           title: mapPoint.name,
+          animation: this.maps.Animation.DROP,
           map: this.map
         });
 
         marker.addListener('click', function() {
           infowindow.open(this.map, marker);
+        });
+
+        const bounceAnimation = this.maps.Animation.BOUNCE;
+        const markers = this.state.markers;
+
+        marker.addListener('mouseover', function(){
+          markers.forEach(m => m.setAnimation(null));
+          marker.setAnimation(bounceAnimation);
+        });
+
+        marker.addListener('mouseout', function(){
+          marker.setAnimation(null);
         });
 
         if (this.state.markers.filter(m => m.title === marker.title).length === 0) {
